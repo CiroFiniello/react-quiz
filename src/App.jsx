@@ -1,6 +1,8 @@
 import { useEffect, useReducer, useState } from "react";
 import Header from "./Header.jsx";
 import Mainn from "./Mainn.jsx";
+import Loader from "./Loader.jsx";
+import Error from "./Error.jsx";
 import "./App.css";
 const initialState = {
   questions: [],
@@ -26,7 +28,7 @@ function reducer(state, action) {
   }
 }
 function App() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [{ question, status }, dispatch] = useReducer(reducer, initialState);
   useEffect(function () {
     fetch("http://localhost:8000/questions")
       .then((res) => res.json())
@@ -38,8 +40,8 @@ function App() {
       <Header />
 
       <Mainn>
-        <p>1/15</p>
-        <p>Question?</p>
+        {status === "loading" && <Loader />}
+        {status === "error" && <Error />}
       </Mainn>
     </div>
   );
