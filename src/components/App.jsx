@@ -6,6 +6,7 @@ import Error from "./Error.jsx";
 import StartScreen from "./StartScreen.jsx";
 import Question from "./Question.jsx";
 import NextButton from "./NextButton.jsx";
+import Progress from "./Progress.jsx";
 import "./App.css";
 
 const initialState = {
@@ -32,15 +33,14 @@ function reducer(state, action) {
       };
     case "start":
       return { ...state, status: "active" };
-
     case "newAnswer":
-      const question = state.questions.at(state.index);
+      const question = state.questions[state.index];
       return {
         ...state,
         answer: action.payload,
         points:
           action.payload === question.correctOption
-            ? state.points + state.points
+            ? state.points + question.points
             : state.points,
       };
     case "nextQuestion":
@@ -51,11 +51,15 @@ function reducer(state, action) {
 }
 
 function App() {
-  const [{ questions, status, index, answer }, dispatch] = useReducer(
+  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
     reducer,
     initialState
   );
   const numQuestions = questions.length;
+  const maxPossiblePoints = questions.reduce(
+    (prev, cur) => prev + cur.points,
+    0
+  );
 
   useEffect(function () {
     fetch("http://localhost:8000/questions")
@@ -75,6 +79,12 @@ function App() {
         )}
         {status === "active" && (
           <>
+            <Progress
+              index={index}
+              numQuestions={numQuestions}
+              points={points}
+              maxPossiblePoints={maxPossiblePoints}
+            />
             <Question
               question={questions[index]}
               dispatch={dispatch}
